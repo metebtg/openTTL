@@ -45,12 +45,3 @@ class OpenTl(tk.Tk):
         tabControl.add(StudyPage(tabControl), text='Dictionary')
         # tabControl.add(SettingsPage(tabControl), text ='Settings')     
         tabControl.pack(expand=1, fill ="both")    
-
-        
-if __name__ == '__main__':
-    app = OpenTl(className='openTTL')    
-    app.title("openTTL")
-    app.iconphoto(False, tk.PhotoImage(file=f"{get_path()}/icons/app_icon.png"))
-    app.resizable(0, 0)
-    app.wm_title("openTTL")   
-    app.mainloop()
