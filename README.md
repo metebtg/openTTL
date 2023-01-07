@@ -7,9 +7,11 @@ Free and open source translator app. Written with Python Tkinter.
 # How Does it Looks?
 ![openTTL Screenshot](https://raw.githubusercontent.com/metedenn/openTTL/main/appPreview.jpeg)
 
-# You Can Learn Tkinter
-- Yes by looking this app, you can learn how to develop Tkinter apps with OOP.
-- I developed only for my requirements, but it's can be help Tkinter newbies.
+# How to Use?
+- git clone https://github.com/metebitig/openTTL.git
+- cd openTTL
+- pip install -r requirements.txt
+- python app/opentl.pyw
 
 # What's Next?
 - I will add Tor over translation support.
