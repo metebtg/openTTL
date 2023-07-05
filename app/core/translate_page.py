@@ -6,7 +6,7 @@ import tkinter as tk
 from tkinter import Menu, ttk, messagebox
 
 from .utils import get_engine_data, code_to_lang, lang_to_code, get_index, get_path
-from .right_click import RightClick
+from .right_click import show_right_click_menu
 from .textbox_events import textbox_select_all, textbox_paste
 
 
@@ -49,12 +49,11 @@ class TranslatePage(ttk.Frame):
 
         # textbox bindings
         bindings = (
-            (('right', 'left'), "<Button-3>", lambda event: RightClick(event)),
-            (('right', 'left'), '<Shift-Return>', lambda event: self.get_translate()),
-            (('right', 'left'), '<Control-Return>', lambda event: self.add_to_db()),
+            (('right', 'left'), "<Button-3>", lambda event: show_right_click_menu(event)),
+            (('right', 'left'), '<Shift-Return>', self.get_translate),
+            (('right', 'left'), '<Control-Return>', self.add_to_db),
             (('right', 'left'), '<Control-a>', lambda event: textbox_select_all(event)),
-            (('right', 'left'), '<Control-v>', lambda event: textbox_paste(event)),
-            (('right', 'left'), '<Control-Return>', lambda event: self.add_to_db()),            
+            (('right', 'left'), '<Control-v>', lambda event: textbox_paste(event)),          
         )     
         # With loop bind items   
         for binding in bindings:

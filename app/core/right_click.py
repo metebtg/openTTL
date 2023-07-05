@@ -7,32 +7,30 @@ BG_COLOR = "#A27B5C"
 FG_COLOR = "#DCD7C9"
 
 
-class RightClick:
-    def __init__(self, event): 
+def show_right_click_menu(event):
+    """Show right click menu at event source."""
          
-        parent = event.widget
+    parent = event.widget
+    menu = Menu(parent, tearoff=0, background=FG_COLOR)  
+   
+    command_data = (
+        ("Cut", "Ctrl+X", lambda: textbox_cut(event)),
+        ("Copy", "Ctrl+C", lambda: textbox_copy(event)),
+        ("Paste", "Ctrl+V", lambda: textbox_paste(event)),
+        ("Select All", "Ctrl+A", lambda: textbox_select_all(event)),
+        ('seperator'),
+        ('Exit', 'Ctrl+Q', lambda: parent.quit())
+    )  
 
-        menu = Menu(parent, tearoff=0, background=FG_COLOR)  
-        menu.add_command(
-            label ="Cut", 
-            accelerator="Ctrl+X",
-            command=lambda: textbox_cut(event=False, textbox=parent),)  
-        menu.add_command(
-            label ="Copy", 
-            accelerator="Ctrl+C",
-            command=lambda: textbox_copy(event=False, textbox=parent),)
-        menu.add_command(
-            label ="Paste", 
-            accelerator="Ctrl+V",
-            command=lambda: textbox_paste(event=False, textbox=parent),)        
-        menu.add_command(
-            label ="Select All", 
-            accelerator="Ctrl+A",
-            command=lambda: textbox_select_all(event=False, textbox=parent),)
-        menu.add_separator()
-        menu.add_command(
-            label ="Exit", 
-            accelerator="Ctrl+Q",
-            command=lambda: parent.quit(),)   
+    for _ in command_data:
+        # if its for add_command
+        if len(_) == 3:
+            menu.add_command(
+                label =_[0], 
+                accelerator=_[1],
+                command=_[2]
+            )
+        else:
+            menu.add_separator()
 
-        menu.tk_popup(event.x_root, event.y_root)
+    menu.tk_popup(event.x_root, event.y_root)
