@@ -3,7 +3,7 @@ from tkinter import ttk
 import os
 
 from core.translate_page import TranslatePage
-# from settings_page import SettingsPage
+from core.settings_page import SettingsPage
 from core.study_page import StudyPage
 from core.utils import get_path
 
@@ -43,5 +43,5 @@ class OpenTl(tk.Tk):
         tabControl = ttk.Notebook(container)             
         tabControl.add(TranslatePage(tabControl), text='Translate')    
         tabControl.add(StudyPage(tabControl), text='Dictionary')
-        # tabControl.add(SettingsPage(tabControl), text ='Settings')     
+        tabControl.add(SettingsPage(tabControl), text ='Settings')     
         tabControl.pack(expand=1, fill ="both")    

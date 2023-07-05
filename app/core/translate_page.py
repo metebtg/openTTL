@@ -35,19 +35,8 @@ class TranslatePage(ttk.Frame):
             highlightthickness=0,
             background=FG_COLOR,
             wrap=tk.WORD,)
-        self.left_textbox.grid(column=0, row=1, padx=5, pady=5, rowspan=5, sticky='nsew')
-        self.left_textbox.bind("<Button-3>", lambda event: RightClick(event))
+        self.left_textbox.grid(column=0, row=1, padx=5, pady=5, rowspan=5, sticky='nsew')        
         self.left_textbox.focus()
-        # Bindings
-        self.left_textbox.bind(
-            '<Control-v>', 
-            lambda event: textbox_paste(event=event, textbox=self.left_textbox))        
-        self.left_textbox.bind(
-            '<Control-a>', 
-            lambda event: textbox_select_all(event=event, textbox=self.left_textbox))
-        self.left_textbox.bind('<Shift-Return>', lambda event: self.get_translate(self.left_textbox))
-        self.left_textbox.bind('<Control-Return>', lambda event: self.add_to_db())
-
         # Right
         self.right_textbox = tk.Text(
             self,
@@ -57,14 +46,22 @@ class TranslatePage(ttk.Frame):
             background=FG_COLOR,
             wrap=tk.WORD,)
         self.right_textbox.grid(column=3, row=1, padx=5, pady=5, rowspan=5, sticky='nsew')
-        # Bindings
-        self.right_textbox.bind("<Button-3>", lambda event: RightClick(event))        
-        self.right_textbox.bind(
-            '<Control-v>', lambda event: textbox_paste(event=event, textbox=self.right_textbox))        
-        self.right_textbox.bind('<Control-a>', 
-            lambda event: textbox_select_all(event=event, textbox=self.right_textbox))
-        self.right_textbox.bind('<Shift-Return>', lambda event: self.get_translate())
-        self.right_textbox.bind('<Control-Return>', lambda event: self.add_to_db())
+
+        # textbox bindings
+        bindings = (
+            (('right', 'left'), "<Button-3>", lambda event: RightClick(event)),
+            (('right', 'left'), '<Shift-Return>', lambda event: self.get_translate()),
+            (('right', 'left'), '<Control-Return>', lambda event: self.add_to_db()),
+            (('right', 'left'), '<Control-a>', lambda event: textbox_select_all(event)),
+            (('right', 'left'), '<Control-v>', lambda event: textbox_paste(event)),
+            (('right', 'left'), '<Control-Return>', lambda event: self.add_to_db()),            
+        )     
+        # With loop bind items   
+        for binding in bindings:
+            if 'right' in binding[0]:
+                self.right_textbox.bind(binding[1], binding[2])
+            if 'left' in binding[0]:
+                self.left_textbox.bind(binding[1], binding[2])
 
         ## BUTTONS ##        
         swap_button_img = tk.PhotoImage(file=f"{get_path()}/icons/swap_icon.png")
