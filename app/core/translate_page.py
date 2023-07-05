@@ -1,11 +1,12 @@
 import os 
 import json
 from googletrans import Translator
+from .translator_duck import TranslatorDuck
 import tkinter as tk
-from tkinter import Menu, ttk
+from tkinter import Menu, ttk, messagebox
 
+from .utils import get_engine_data, code_to_lang, lang_to_code, get_index, get_path
 from .right_click import RightClick
-from .utils import *
 from .textbox_events import textbox_select_all, textbox_paste
 
 
@@ -13,6 +14,10 @@ BG_COLOR = "#A27B5C"
 FG_COLOR = "#DCD7C9"
 LANG_DATA_PATH = f'{os.path.expanduser("~")}/.config/opentltranslations.json'
 CONF_DATA_PATH = f'{os.path.expanduser("~")}/.config/opentldata.conf'
+
+engine_data = get_engine_data('google')
+engine_langs = [_['lang'] for _ in engine_data]
+
 
 
 class TranslatePage(ttk.Frame):
@@ -94,18 +99,21 @@ class TranslatePage(ttk.Frame):
             width=8,)
         add_button.grid(column=1, row=3, columnspan=2)
 
+        
+
         ## COMBOBOXES
         self.left_combobox = ttk.Combobox(self)
-        self.left_combobox["values"] =  google_list()
+        self.left_combobox["values"] =  engine_langs
         # Default to English.
-        self.left_combobox.current(google_list().index(self.get_combo_data()[0]))  
+        
+        self.left_combobox.current(get_index(engine_data, self.get_combo_data()[0]))  
         self.left_combobox.grid(column=0, row=0, sticky='ew')   
         self.left_combobox.bind("<<ComboboxSelected>>", lambda event: self.default_combo_items())   
 
         self.right_combobox = ttk.Combobox(self)
-        self.right_combobox["values"] =  google_list()
-        # Default to Turkish.
-        self.right_combobox.current(google_list().index(self.get_combo_data()[1]))
+        self.right_combobox["values"] =  engine_langs
+        # Default to Turkish.        
+        self.right_combobox.current(get_index(engine_data, self.get_combo_data()[1]))
         self.right_combobox.grid(column=3, row=0, sticky='ew')
         self.right_combobox.bind("<<ComboboxSelected>>", lambda event: self.default_combo_items())   
 
@@ -117,9 +125,9 @@ class TranslatePage(ttk.Frame):
         
         if len(left) > 0 and len(right) > 0:     
             # Get combobox Language and with google_value convert them to lang code
-            left_lang = google_value(self.left_combobox.get().strip())
-            right_lang = google_value(self.right_combobox.get().strip())
-            # Schema for new data
+            
+            left_lang = lang_to_code(engine_data, self.left_combobox.get().strip())
+            right_lang = lang_to_code(engine_data, self.right_combobox.get().strip()) 
             new_data = {
                 left_lang: {right_lang: {left: right}}
             }
@@ -159,8 +167,8 @@ class TranslatePage(ttk.Frame):
         left_combobox = self.left_combobox.get()
         right_combobox = self.right_combobox.get()
         
-        self.left_combobox.current(google_list().index(right_combobox))  
-        self.right_combobox.current(google_list().index(left_combobox))
+        self.left_combobox.current(get_index(engine_data, right_combobox))  
+        self.right_combobox.current(get_index(engine_data, left_combobox))
 
         left_textbox = self.left_textbox.get("1.0","end").strip()
         right_textbox = self.right_textbox.get("1.0","end").strip()
@@ -174,18 +182,30 @@ class TranslatePage(ttk.Frame):
         # Even on swap change langs on conf
         self.default_combo_items()
 
-    def get_translate(self): 
+    def get_translate(self, engine: str = 'google'): 
         in_text = self.left_textbox.get("1.0","end").strip()     
+        if not in_text:
+            return 'break'      
+
+        src_lang = lang_to_code(engine_data, self.left_combobox.get())
+        dest_lang = lang_to_code(engine_data, self.right_combobox.get()) 
         
-        if len(in_text) > 0:
+        if engine == 'google':        
             translator = Translator()
-            translated_text = translator.translate(
-                in_text, 
-                src=google_value(self.left_combobox.get()), 
-                dest=self.right_combobox.get()).text
-            
-            self.right_textbox.delete("1.0", "end")
-            self.right_textbox.insert("end", translated_text)
+            translated = translator.translate(in_text, src=src_lang, dest=dest_lang)
+            translated_text = translated.text
+
+        else:
+            duck = TranslatorDuck()
+            translated = duck.translate(in_text, src=src_lang, dest=dest_lang)
+            translated_text = translated['translated']
+
+        print(translated_text)
+        if not translated_text:
+            messagebox.showerror("error", translated_text)
+        
+        self.right_textbox.delete("1.0", "end")
+        self.right_textbox.insert("end", translated_text)
         
         return 'break' 
 

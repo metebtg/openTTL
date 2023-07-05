@@ -3,12 +3,15 @@ import tkinter as tk
 from tkinter import ttk
 import os
 
-from .utils import code_to_lang, google_value
+from .utils import code_to_lang, google_value, get_engine_data, lang_to_code
 
 
 BG_COLOR = "#A27B5C"
 FG_COLOR = "#DCD7C9"
 LANG_DATA_PATH = f'{os.path.expanduser("~")}/.config/opentltranslations.json'
+
+engine_data = get_engine_data('google')
+engine_langs = [_['lang'] for _ in engine_data]
 
 
 class StudyPage(ttk.Frame):
@@ -90,15 +93,18 @@ class QueryPage(ttk.Frame):
         for key in data:
             for sub_key in data[key]:
                 if data[key][sub_key].keys():
-                    items.append(f'{code_to_lang(key)} --> {code_to_lang(sub_key)}')         
+                    
+                    items.append(
+                        f'{code_to_lang(engine_data, key)} --> {code_to_lang(engine_data, sub_key)}'
+                    )         
         
         return [items, data]
 
     # Close our page and get result page with passing data
     def get_results(self):
         combose = self.combo.get().split('-->')
-        k_lang = google_value(combose[0].strip())
-        v_lang = google_value(combose[1].strip())
+        k_lang = lang_to_code(engine_data, combose[0].strip())
+        v_lang = lang_to_code(engine_data, combose[1].strip())
         combo_data = {
             'k_lang': k_lang,
             'v_lang': v_lang,
@@ -128,8 +134,8 @@ class ResultsPage(ttk.Frame):
             yscrollcommand=scrollbar.set)
         scrollbar.config(command=self.tree.yview)      
         # Tree head data
-        self.tree.heading(combo_data['k_lang'], text=code_to_lang(combo_data['k_lang']))
-        self.tree.heading(combo_data['v_lang'], text=code_to_lang(combo_data['v_lang']))
+        self.tree.heading(combo_data['k_lang'], text=code_to_lang(engine_data, combo_data['k_lang']))
+        self.tree.heading(combo_data['v_lang'], text=code_to_lang(engine_data, combo_data['v_lang']))
         self.tree.grid(row=0, column=0)
 
         # With loop insert data to tree
