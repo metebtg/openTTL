@@ -30,8 +30,23 @@ class OpenTl(tk.Tk):
             background=FG_COLOR, 
             arrowcolor=BG_COLOR, 
             fieldbackground=FG_COLOR,
-            selectbackground=FG_COLOR)
+            selectbackground=FG_COLOR,
+            selectforeground='black',
+            focusfill='red',
+            insertcolor='black'
+            )
+        style.configure(
+            'TRadiobutton', 
+            background=BG_COLOR, 
+            foreground='black',
+            pressed=BG_COLOR,
+            indicatorcolor=BG_COLOR
+            )
         self.option_add("*TCombobox*Listbox*Background", FG_COLOR)
+        self.option_add("*TCombobox*Listbox*foreground", 'black')
+        self.option_add("*TCombobox*Listbox*selectBackground", '#5089a7')
+        self.option_add("*TCombobox*Listbox*selectForeground", 'black')
+
         style.configure("Treeview.Heading", background=BG_COLOR, foreground=FG_COLOR)
 
         # Main container
@@ -40,7 +55,7 @@ class OpenTl(tk.Tk):
         container.grid_rowconfigure(0, weight=1)
         container.grid_columnconfigure(0, weight=1)        
 
-        tabControl = ttk.Notebook(container)             
+        tabControl = ttk.Notebook(container)         
         tabControl.add(TranslatePage(tabControl), text='Translate')    
         tabControl.add(StudyPage(tabControl), text='Dictionary')
         tabControl.add(SettingsPage(tabControl), text ='Settings')     

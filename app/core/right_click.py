@@ -2,10 +2,7 @@ from tkinter import Menu
 
 from .textbox_events import *
 
-
-BG_COLOR = "#A27B5C"
 FG_COLOR = "#DCD7C9"
-
 
 def show_right_click_menu(event):
     """Show right click menu at event source."""

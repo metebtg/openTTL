@@ -7,7 +7,7 @@ from tkinter import Menu, ttk, messagebox
 
 from .utils import get_engine_data, code_to_lang, lang_to_code, get_index, get_path
 from .right_click import show_right_click_menu
-from .textbox_events import textbox_select_all, textbox_paste
+from .textbox_events import textbox_select_all, textbox_paste, textbox_copy
 
 
 BG_COLOR = "#A27B5C"
@@ -15,17 +15,19 @@ FG_COLOR = "#DCD7C9"
 LANG_DATA_PATH = f'{os.path.expanduser("~")}/.config/opentltranslations.json'
 CONF_DATA_PATH = f'{os.path.expanduser("~")}/.config/opentldata.conf'
 
-engine_data = get_engine_data('google')
-engine_langs = [_['lang'] for _ in engine_data]
+
 
 
 
 class TranslatePage(ttk.Frame):
+    
     def __init__(self, parent):
         ttk.Frame.__init__(self, parent) 
 
         self.parent = parent
-        
+        engine_data = get_engine_data('google')
+        engine_langs = [_['lang'] for _ in engine_data]
+
         ## TEXTBOXES ##
         # Left        
         self.left_textbox = tk.Text(
@@ -63,9 +65,12 @@ class TranslatePage(ttk.Frame):
                 self.left_textbox.bind(binding[1], binding[2])
 
         ## BUTTONS ##        
-        swap_button_img = tk.PhotoImage(file=f"{get_path()}/icons/swap_icon.png")
-        # Bellow two line is deadly required
+        
+        # WARNING #
+        # image_label is required
+        # We dont use them but without them images are not visible.
         img_label = ttk.Label(self)
+        swap_button_img = tk.PhotoImage(file=f"{get_path()}/icons/swap_icon.png")
         img_label.image = swap_button_img 
         swap_button = ttk.Button(
             self,
@@ -93,23 +98,57 @@ class TranslatePage(ttk.Frame):
             text="Add",
             command=self.add_to_db,
             width=8,)
-        add_button.grid(column=1, row=3, columnspan=2)
+        add_button.grid(column=1, row=3, columnspan=2) 
 
-        
+
+
+
+        copy_img_label = tk.Label(self)
+        copy_button_img = tk.PhotoImage(file=f"{get_path()}/icons/copy_icon.png")        
+        copy_img_label.image = copy_button_img 
+
+        settings_button = tk.Button(
+            self,
+            image=copy_button_img,
+            highlightthickness=0,
+            bg=BG_COLOR,
+            activebackground=BG_COLOR,
+            text="S",
+            border=0,           
+            font=("arial", 10, "bold"),
+            command=lambda: self.copy_textbox('left'),
+        )
+        settings_button.grid(column=1, row=4)    
+
+
+         
+
+        about_button = tk.Button(
+            self,
+            image=copy_button_img,
+            bg=BG_COLOR,
+            activebackground=BG_COLOR,
+            highlightthickness=0,
+            text="?",
+            border=0,
+            command=lambda: self.copy_textbox('right'),
+        )
+        about_button.grid(column=2, row=4)  
 
         ## COMBOBOXES
         self.left_combobox = ttk.Combobox(self)
         self.left_combobox["values"] =  engine_langs
         # Default to English.
         
-        self.left_combobox.current(get_index(engine_data, self.get_combo_data()[0]))  
+        left_current, right_current = self.get_combo_data()
+        self.left_combobox.current(get_index(engine_data, left_current))  
         self.left_combobox.grid(column=0, row=0, sticky='ew')   
         self.left_combobox.bind("<<ComboboxSelected>>", lambda event: self.default_combo_items())   
 
         self.right_combobox = ttk.Combobox(self)
         self.right_combobox["values"] =  engine_langs
         # Default to Turkish.        
-        self.right_combobox.current(get_index(engine_data, self.get_combo_data()[1]))
+        self.right_combobox.current(get_index(engine_data, right_current))
         self.right_combobox.grid(column=3, row=0, sticky='ew')
         self.right_combobox.bind("<<ComboboxSelected>>", lambda event: self.default_combo_items())   
 
@@ -158,6 +197,14 @@ class TranslatePage(ttk.Frame):
             if hasattr(object_, 'refresh_data'):                    
                     object_.refresh_data()
                     break
+
+    def copy_textbox(self, direction):
+        if direction == 'left':
+            textbox = self.left_textbox
+        else:
+            textbox = self.right_textbox
+            
+        textbox_copy(event=None, textbox=textbox)   
     
     def swap_langs(self):
         left_combobox = self.left_combobox.get()
@@ -178,10 +225,16 @@ class TranslatePage(ttk.Frame):
         # Even on swap change langs on conf
         self.default_combo_items()
 
-    def get_translate(self, engine: str = 'google'): 
+    def get_translate(self): 
         in_text = self.left_textbox.get("1.0","end").strip()     
         if not in_text:
-            return 'break'      
+            return 'break' 
+
+        engine = 'duckduckgo'
+        if os.path.exists(CONF_DATA_PATH):
+            with open(CONF_DATA_PATH, 'r') as file:
+                data = json.loads(file.read())
+                engine = data['engine']   
 
         src_lang = lang_to_code(engine_data, self.left_combobox.get())
         dest_lang = lang_to_code(engine_data, self.right_combobox.get()) 
@@ -213,7 +266,7 @@ class TranslatePage(ttk.Frame):
         # If combo item changes, write it in cfg file
         # User don't have to always choice language
         # User will find last chosen langs in combo      
-        
+    
         if not os.path.exists(CONF_DATA_PATH):
             with open(CONF_DATA_PATH, 'w') as file:
                 data = {
@@ -232,11 +285,13 @@ class TranslatePage(ttk.Frame):
                 json.dump(data, file)
     
     def get_combo_data(self):
-        # If user ever choice any language in comboboxes return that,    
-        
-        if os.path.exists(CONF_DATA_PATH):
+        # If user ever choice any language in comboboxes return that,  
+
+        try:
             with open(CONF_DATA_PATH, 'r') as file:
                 data = json.load(file)
-            return [data['leftComboLang'], data['rightComboLang']]
-        else:
+            return [data['leftComboLang'], data['rightComboLang']]  
+        except (KeyError, FileNotFoundError):
             return ['English', 'Turkish']
+        
+            
