@@ -16,7 +16,8 @@ LANG_DATA_PATH = f'{os.path.expanduser("~")}/.config/opentltranslations.json'
 CONF_DATA_PATH = f'{os.path.expanduser("~")}/.config/opentldata.conf'
 
 
-
+engine_data = get_engine_data('google')
+engine_langs = [_['lang'] for _ in engine_data]
 
 
 class TranslatePage(ttk.Frame):
@@ -25,8 +26,7 @@ class TranslatePage(ttk.Frame):
         ttk.Frame.__init__(self, parent) 
 
         self.parent = parent
-        engine_data = get_engine_data('google')
-        engine_langs = [_['lang'] for _ in engine_data]
+        
 
         ## TEXTBOXES ##
         # Left        
