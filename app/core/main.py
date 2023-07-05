@@ -1,11 +1,9 @@
 import tkinter as tk
 from tkinter import ttk
-import os
 
 from core.translate_page import TranslatePage
 from core.settings_page import SettingsPage
 from core.study_page import StudyPage
-from core.utils import get_path
 
 
 BG_COLOR = "#A27B5C"
@@ -13,22 +11,36 @@ FG_COLOR = "#DCD7C9"
 
 
 class OpenTl(tk.Tk):
+
     def __init__(self, *args, **kwargs):
-        tk.Tk.__init__(self, *args, **kwargs)  
-        
-        # Styling
+        tk.Tk.__init__(self, *args, **kwargs)
+
+        ## Styling
         style = ttk.Style()
-        style.configure('TLabel', background=FG_COLOR)
-        style.configure('TButton', background=FG_COLOR)        
-        style.configure('TFrame', background=BG_COLOR) 
-        style.configure('Treeview', background=FG_COLOR, fieldbackground=FG_COLOR) 
-        style.configure('TNotebook', background=FG_COLOR, bordercolor=BG_COLOR) 
-        style.configure('TNotebook.Tab', background=FG_COLOR) 
+        # Put styles in a tuple
+        styles = (
+            ('TLabel', {'background': FG_COLOR}),
+            ('TButton', {'background': FG_COLOR}),
+            ('TFrame', {'background': BG_COLOR}),
+            ('TLabel', {'background': FG_COLOR}),
+            ('Treeview', {'background': FG_COLOR, 'fieldbackground': FG_COLOR}),
+            ('TNotebook', {'background': FG_COLOR, 'bordercolor': BG_COLOR}),
+            ('TNotebook.Tab', {'background': FG_COLOR}),
+        )
+        # Loop styles ...
+        for _ in styles:        
+            widget = _[0]
+            params = _[1]
+            print(type(params))
+            style.configure(widget, **params)
+        
         style.map("TNotebook.Tab", background=[("selected", BG_COLOR)])
+
+
         style.configure(
-            'TCombobox', 
-            background=FG_COLOR, 
-            arrowcolor=BG_COLOR, 
+            'TCombobox',
+            background=FG_COLOR,
+            arrowcolor=BG_COLOR,
             fieldbackground=FG_COLOR,
             selectbackground=FG_COLOR,
             selectforeground='black',
@@ -36,12 +48,13 @@ class OpenTl(tk.Tk):
             insertcolor='black'
             )
         style.configure(
-            'TRadiobutton', 
-            background=BG_COLOR, 
+            'TRadiobutton',
+            background=BG_COLOR,
             foreground='black',
             pressed=BG_COLOR,
             indicatorcolor=BG_COLOR
             )
+
         self.option_add("*TCombobox*Listbox*Background", FG_COLOR)
         self.option_add("*TCombobox*Listbox*foreground", 'black')
         self.option_add("*TCombobox*Listbox*selectBackground", '#5089a7')
@@ -53,10 +66,10 @@ class OpenTl(tk.Tk):
         container = tk.Frame(self)
         container.pack(side='left', fill='both', expand=True)
         container.grid_rowconfigure(0, weight=1)
-        container.grid_columnconfigure(0, weight=1)        
+        container.grid_columnconfigure(0, weight=1)
 
-        tabControl = ttk.Notebook(container)         
-        tabControl.add(TranslatePage(tabControl), text='Translate')    
-        tabControl.add(StudyPage(tabControl), text='Dictionary')
-        tabControl.add(SettingsPage(tabControl), text ='Settings')     
-        tabControl.pack(expand=1, fill ="both")    
+        tab_control = ttk.Notebook(container)
+        tab_control.add(TranslatePage(tab_control), text='Translate')
+        tab_control.add(StudyPage(tab_control), text='Dictionary')
+        tab_control.add(SettingsPage(tab_control), text ='Settings')
+        tab_control.pack(expand=1, fill ="both")
