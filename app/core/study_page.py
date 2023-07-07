@@ -1,4 +1,5 @@
 import json
+from json.decoder import JSONDecodeError
 import tkinter as tk
 from tkinter import ttk
 import os
@@ -84,10 +85,12 @@ class QueryPage(ttk.Frame):
 
     def get_data(self):
         # Get fresh data in opening        
-        if not os.path.exists(LANG_DATA_PATH):
+        data: dict = {}
+        try:
+            with open(LANG_DATA_PATH) as file:
+                data = json.load(file)
+        except (KeyError, FileNotFoundError, JSONDecodeError):
             return ['', '']
-        with open(LANG_DATA_PATH) as file:
-            data = json.load(file)
 
         items = []
         for key in data:

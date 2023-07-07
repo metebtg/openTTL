@@ -146,12 +146,12 @@ class TranslatePage(ttk.Frame):
                     data[src_lang][dest_word] = {}
 
                 data[src_lang][dest_word][src_word] = dest_word
-            except (KeyError, FileNotFoundError) as error:
+            except (KeyError, FileNotFoundError, JSONDecodeError) as error:
                 print(error)
                 data = new_data
             finally:
                 with open(LANG_DATA_PATH, "w") as file:
-                    json.dump(file, data_file, indent=2, ensure_ascii=False)
+                    json.dump(data, file, indent=2, ensure_ascii=False)
 
         # Refresh query page data
         # get study_page
@@ -190,7 +190,7 @@ class TranslatePage(ttk.Frame):
         # Even on swap change langs on conf
         self.default_combo_items()
 
-    def get_translate(self):
+    def get_translate(self) -> str:
         in_text = self.left_textbox.get("1.0","end").strip()
         if not in_text:
             return 'break'
@@ -241,7 +241,7 @@ class TranslatePage(ttk.Frame):
             with open(CONF_DATA_PATH, 'r') as file:
                 data = json.load(file)
 
-        except (KeyError, FileNotFoundError, JSONDecodeError) as error:
+        except (FileNotFoundError, JSONDecodeError) as error:
             print(error)
             data = combobox_data
 
@@ -250,7 +250,7 @@ class TranslatePage(ttk.Frame):
 
         finally:
             with open(CONF_DATA_PATH, 'w') as file:
-                json.dump(data, file)
+                json.dump(data, file, indent=2)
 
     def get_combo_data(self):
         """Return default value bor comboboxes"""
