@@ -25,17 +25,17 @@ class TranslatorDuck:
 
     def _get_vqd(self, timeout: int = 5) -> str:
         """Return vqd as string. Required for Duckduckgo api."""
-        
+
         # For getting random vqd...
         query_string = 'translate'
-        query_params = {'q': query_string}       
+        query_params = {'q': query_string}
 
         # Build req url
         vqd_req_url = urlunparse(
             urlparse(self.base_url)._replace(query=urlencode(query_params))
         )
 
-        vqd_res = requests.get(vqd_req_url, headers=self.headers, timeout=timeout)      
+        vqd_res = requests.get(vqd_req_url, headers=self.headers, timeout=timeout)
 
         vqd: str = ''
 
@@ -44,7 +44,7 @@ class TranslatorDuck:
             vqd = vqd_list[0]
 
         return vqd
-    
+
     def _change_vqd(self):
         self.vqd = self._get_vqd()
 
@@ -65,7 +65,7 @@ class TranslatorDuck:
             self._change_vqd()
         if new_useragent:
             self._change_useragent()
-            
+
 
         vqd = self.vqd
 
@@ -89,7 +89,7 @@ class TranslatorDuck:
         req_url = urlunparse(
             urlparse(self.base_url)._replace(query=urlencode(query_params), path='translation.js')
         )
-        
+
         res = requests.post(req_url, data=data, timeout=timeout, headers=self.headers)
         return res.json()
 
@@ -97,4 +97,4 @@ class TranslatorDuck:
 if __name__ == '__main__':
     duck = TranslatorDuck()
     print(duck.translate('hello'))
-      
+

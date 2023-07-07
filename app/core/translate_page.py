@@ -5,6 +5,7 @@ from .translator_duck import TranslatorDuck
 import tkinter as tk
 from tkinter import Menu, ttk, messagebox
 import time
+from json.decoder import JSONDecodeError
 
 from .utils import get_engine_data, code_to_lang, lang_to_code, get_index, get_path
 from .right_click import show_right_click_menu
@@ -123,38 +124,34 @@ class TranslatePage(ttk.Frame):
     ## FUCNTIONS
     def add_to_db(self):
         """Add language data to local json file."""
-        left = self.left_textbox.get("1.0","end").strip().title()
-        right = self.right_textbox.get("1.0","end").strip().title()
+        src_word = self.left_textbox.get("1.0","end").strip().title()
+        dest_word = self.right_textbox.get("1.0","end").strip().title()
 
-        if len(left) > 0 and len(right) > 0:
-            # Get combobox Language and with google_value convert them to lang code
+        if len(src_word) > 0 and len(dest_word) > 0:
+            # Get combobox Language and convert them to lang code
 
-            left_lang = lang_to_code(engine_data, self.left_combobox.get().strip())
-            right_lang = lang_to_code(engine_data, self.right_combobox.get().strip())
+            src_lang = lang_to_code(engine_data, self.left_combobox.get().strip())
+            dest_lang = lang_to_code(engine_data, self.right_combobox.get().strip())
             new_data = {
-                left_lang: {right_lang: {left: right}}
+                src_lang: {dest_word: {src_word: dest_word}}
             }
-            # If exist update data, otherwise create...
-            if os.path.exists(LANG_DATA_PATH):
-                with open(LANG_DATA_PATH, "r") as data_file:
-                    # Reading old data
-                    data = json.load(data_file)
-                    # Updating old data with new data
 
-                    if left_lang not in data:
-                        data[left_lang] = {}
-                    if right_lang not in data[left_lang]:
-                        data[left_lang][right_lang] = {}
+            data: dict = {}
+            try:
+                with open(LANG_DATA_PATH, "r") as file:
+                    data = json.load(file)
+                if src_lang not in data:
+                    data[src_lang] = {}
+                if dest_word not in data[src_lang]:
+                    data[src_lang][dest_word] = {}
 
-                    data[left_lang][right_lang][left] = right
-                    data.update()
-            else:
+                data[src_lang][dest_word][src_word] = dest_word
+            except (KeyError, FileNotFoundError) as error:
+                print(error)
                 data = new_data
-                open(LANG_DATA_PATH, "w")
-
-            with open(LANG_DATA_PATH, "w") as data_file:
-                # Saving updated data
-                json.dump(data, data_file, indent=4, ensure_ascii=False)
+            finally:
+                with open(LANG_DATA_PATH, "w") as file:
+                    json.dump(file, data_file, indent=2, ensure_ascii=False)
 
         # Refresh query page data
         # get study_page
@@ -189,7 +186,7 @@ class TranslatePage(ttk.Frame):
 
         self.right_textbox.delete("1.0", "end")
         self.right_textbox.insert("end", left_textbox)
-        
+
         # Even on swap change langs on conf
         self.default_combo_items()
 
@@ -234,22 +231,24 @@ class TranslatePage(ttk.Frame):
         # If combo item changes, write it in cfg file
         # User don't have to always choice language
         # User will find last chosen langs in combo
-        print('hi')
+        combobox_data = {
+                "leftComboLang": self.left_combobox.get(),
+                "rightComboLang": self.right_combobox.get(),
+        }
 
-        if not os.path.exists(CONF_DATA_PATH):
-            with open(CONF_DATA_PATH, 'w') as file:
-                data = {
-                    "leftComboLang": self.left_combobox.get(),
-                    "rightComboLang": self.right_combobox.get(),
-                }
-                json.dump(data, file)
-        else:
+        data: dict = {}
+        try:
             with open(CONF_DATA_PATH, 'r') as file:
                 data = json.load(file)
 
-            data['leftComboLang'] = self.left_combobox.get()
-            data['rightComboLang'] = self.right_combobox.get()
+        except (KeyError, FileNotFoundError, JSONDecodeError) as error:
+            print(error)
+            data = combobox_data
 
+        else:
+            data.update(combobox_data)
+
+        finally:
             with open(CONF_DATA_PATH, 'w') as file:
                 json.dump(data, file)
 
@@ -259,5 +258,5 @@ class TranslatePage(ttk.Frame):
             with open(CONF_DATA_PATH, 'r') as file:
                 data = json.load(file)
             return [data['leftComboLang'], data['rightComboLang']]
-        except (KeyError, FileNotFoundError):
+        except (KeyError, FileNotFoundError, JSONDecodeError):
             return ['English', 'Turkish']
