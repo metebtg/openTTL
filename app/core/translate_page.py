@@ -117,7 +117,7 @@ class TranslatePage(ttk.Frame):
             textbox['values'] =  engine_langs
             textbox.current(get_index(engine_data, _[2]))
             textbox.grid(column=_[1], row=0, sticky='ew')
-            textbox.bind("<<ComboboxSelected>>", lambda event: self.default_combo_items)
+            textbox.bind("<<ComboboxSelected>>", self.default_combo_items)
 
 
     ## FUCNTIONS
@@ -189,7 +189,7 @@ class TranslatePage(ttk.Frame):
 
         self.right_textbox.delete("1.0", "end")
         self.right_textbox.insert("end", left_textbox)
-
+        
         # Even on swap change langs on conf
         self.default_combo_items()
 
@@ -230,10 +230,11 @@ class TranslatePage(ttk.Frame):
         self.left_textbox.delete("1.0", "end")
         self.right_textbox.delete("1.0", "end")
 
-    def default_combo_items(self):
+    def default_combo_items(self, *args):
         # If combo item changes, write it in cfg file
         # User don't have to always choice language
         # User will find last chosen langs in combo
+        print('hi')
 
         if not os.path.exists(CONF_DATA_PATH):
             with open(CONF_DATA_PATH, 'w') as file:
