@@ -31,7 +31,6 @@ class OpenTl(tk.Tk):
         for _ in styles:
             widget = _[0]
             params = _[1]
-            print(type(params))
             style.configure(widget, **params)
 
         style.map("TNotebook.Tab", background=[("selected", BG_COLOR)])
