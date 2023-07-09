@@ -1,7 +1,8 @@
 import os
 import json
-from googletrans import Translator
-from .translator_duck import TranslatorDuck
+from typing import Literal
+from googletrans import Translator as GoTranslator
+from duckduckgo_translate import  Translator
 import tkinter as tk
 from tkinter import Menu, ttk, messagebox
 import time
@@ -190,7 +191,7 @@ class TranslatePage(ttk.Frame):
         # Even on swap change langs on conf
         self.default_combo_items()
 
-    def get_translate(self) -> str:
+    def get_translate(self) -> Literal['break']:
         in_text = self.left_textbox.get("1.0","end").strip()
         if not in_text:
             return 'break'
@@ -205,16 +206,14 @@ class TranslatePage(ttk.Frame):
         dest_lang = lang_to_code(engine_data, self.right_combobox.get())
 
         if engine == 'google':
-            translator = Translator()
-            translated = translator.translate(in_text, src=src_lang, dest=dest_lang)
-            translated_text = translated.text
-
+            translator = GoTranslator()
         else:
-            duck = TranslatorDuck()
-            translated = duck.translate(in_text, src=src_lang, dest=dest_lang)
-            translated_text = translated['translated']
-
+            translator = Translator()
+        
+        translated = translator.translate(in_text, src=src_lang, dest=dest_lang)            
+        translated_text = translated.text
         print(translated_text)
+
         if not translated_text:
             messagebox.showerror("error", translated_text)
 
