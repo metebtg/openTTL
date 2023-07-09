@@ -4,8 +4,8 @@ import tkinter as tk
 from tkinter import ttk
 from json.decoder import JSONDecodeError
 
+from . import CONF_DATA_PATH
 
-CONF_DATA_PATH = f'{os.path.expanduser("~")}/.config/opentldata.conf'
 
 class SettingsPage(ttk.Frame):
     def __init__(self, parent):
@@ -19,23 +19,18 @@ class SettingsPage(ttk.Frame):
 
         self.engin_type = tk.StringVar()
         self.engin_type.set(self._get_default_engine())
-        radio_item = ttk.Radiobutton(
-            self.frame,
-            text='Google Translator',
-            value='google',
-            variable=self.engin_type,
-            command=self._update_config
-        )
-        radio_item.pack(fill='x', padx=5, pady=5)
 
-        radio_item1= ttk.Radiobutton(
-            self.frame,
-            text='Duckduckgo Translator',
-            value='duckduckgo',
-            variable=self.engin_type,
-            command=self._update_config
-        )
-        radio_item1.pack(fill='x', padx=5, pady=5)
+        radio_data = (('Google Translator', 'google'), ('Duckduckgo Translator', 'duckduckgo'))
+        for _ in radio_data:
+
+            radio = ttk.Radiobutton(
+                self.frame,
+                text=_[0],
+                value=_[1],
+                variable=self.engin_type,
+                command=self._update_config)
+
+            radio.pack(fill='x', padx=5, pady=5)
 
     def _update_config(self):
         data = {}
@@ -50,8 +45,6 @@ class SettingsPage(ttk.Frame):
         with open(CONF_DATA_PATH, 'w') as file:
             json.dump(data, file, indent=2)
 
-
-
     def _get_default_engine(self):
         try:
             with open(CONF_DATA_PATH, 'r') as file:
@@ -60,6 +53,3 @@ class SettingsPage(ttk.Frame):
         except (KeyError, FileNotFoundError, JSONDecodeError) as error:
             print(error)
             return 'duckduckgo'
-
-
-

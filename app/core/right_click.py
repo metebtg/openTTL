@@ -1,8 +1,7 @@
 from tkinter import Menu
 
 from .textbox_events import *
-
-FG_COLOR = "#DCD7C9"
+from . import FG_COLOR
 
 def show_right_click_menu(event):
     """Show right click menu at event source."""
@@ -16,8 +15,7 @@ def show_right_click_menu(event):
         ("Paste", "Ctrl+V", lambda: textbox_paste(event)),
         ("Select All", "Ctrl+A", lambda: textbox_select_all(event)),
         ('seperator'),
-        ('Exit', 'Ctrl+Q', lambda: parent.quit())
-    )  
+        ('Exit', 'Ctrl+Q', lambda: parent.quit()))  
 
     for _ in command_data:
         # if its for add_command

@@ -1,13 +1,10 @@
 import tkinter as tk
 from tkinter import ttk
 
-from core.translate_page import TranslatePage
-from core.settings_page import SettingsPage
-from core.study_page import StudyPage
-
-
-BG_COLOR = "#A27B5C"
-FG_COLOR = "#DCD7C9"
+from .translate_page import TranslatePage
+from .settings_page import SettingsPage
+from .study_page import StudyPage
+from . import BG_COLOR, FG_COLOR
 
 
 class OpenTl(tk.Tk):
@@ -35,7 +32,6 @@ class OpenTl(tk.Tk):
 
         style.map("TNotebook.Tab", background=[("selected", BG_COLOR)])
 
-
         style.configure(
             'TCombobox',
             background=FG_COLOR,
@@ -44,15 +40,13 @@ class OpenTl(tk.Tk):
             selectbackground=FG_COLOR,
             selectforeground='black',
             focusfill='red',
-            insertcolor='black'
-            )
+            insertcolor='black')
         style.configure(
             'TRadiobutton',
             background=BG_COLOR,
             foreground='black',
             pressed=BG_COLOR,
-            indicatorcolor=BG_COLOR
-            )
+            indicatorcolor=BG_COLOR)
 
         self.option_add("*TCombobox*Listbox*Background", FG_COLOR)
         self.option_add("*TCombobox*Listbox*foreground", 'black')

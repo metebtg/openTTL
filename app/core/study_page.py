@@ -2,14 +2,8 @@ import json
 from json.decoder import JSONDecodeError
 import tkinter as tk
 from tkinter import ttk
-import os
 
-from .utils import code_to_lang, google_value, get_engine_data, lang_to_code
-
-
-BG_COLOR = "#A27B5C"
-FG_COLOR = "#DCD7C9"
-LANG_DATA_PATH = f'{os.path.expanduser("~")}/.config/opentltranslations.json'
+from . import *
 
 engine_data = get_engine_data('google')
 engine_langs = [_['lang'] for _ in engine_data]
@@ -48,24 +42,29 @@ class QueryPage(ttk.Frame):
         # Get data for combo list
         self.items = self.get_data()[0]
         self.data = self.get_data()[1]
+
         # Label  
         label = ttk.Label(self, relief='raised', borderwidth=4, text='Choose a language')
-        label.pack(pady=10, padx=10)        
+        label.pack(pady=10, padx=10)    
+
         # Combobox
         self.combo = ttk.Combobox(self) 
         self.combo['values'] = self.items
+
         if self.items:
             self.combo.current(0)
         else:
             self.combo['state'] = 'disabled'
         self.combo.pack(pady=10, padx=10)
+
         # Button
         self.button = ttk.Button(
             self, 
             text='Get', 
             width=7,
-            command=self.get_results,)
+            command=self.get_results)
         self.button.pack(pady=10, padx=10)
+
         if not self.items:
             self.button['state'] = 'disabled'
 
@@ -98,8 +97,7 @@ class QueryPage(ttk.Frame):
                 if data[key][sub_key].keys():
                     
                     items.append(
-                        f'{code_to_lang(engine_data, key)} --> {code_to_lang(engine_data, sub_key)}'
-                    )         
+                        f'{code_to_lang(engine_data, key)} --> {code_to_lang(engine_data, sub_key)}')         
         
         return [items, data]
 
@@ -122,12 +120,15 @@ class ResultsPage(ttk.Frame):
         ttk.Frame.__init__(self, parent)
         
         self.combo_data = combo_data
+
         # Frame for tree and scroll
         frame = ttk.Frame(self)
         frame.grid(row=0, column=0, rowspan=20)
+
         # Scroll
         scrollbar = ttk.Scrollbar(frame)
-        scrollbar.grid(row=0, column=1, sticky='ns')        
+        scrollbar.grid(row=0, column=1, sticky='ns') 
+
         # Tree
         self.tree = ttk.Treeview(
             frame,
@@ -135,10 +136,13 @@ class ResultsPage(ttk.Frame):
             show='headings',
             height=8, 
             yscrollcommand=scrollbar.set)
-        scrollbar.config(command=self.tree.yview)      
+        scrollbar.config(command=self.tree.yview)   
+
         # Tree head data
-        self.tree.heading(combo_data['k_lang'], text=code_to_lang(engine_data, combo_data['k_lang']))
-        self.tree.heading(combo_data['v_lang'], text=code_to_lang(engine_data, combo_data['v_lang']))
+        self.tree.heading(
+            combo_data['k_lang'], text=code_to_lang(engine_data, combo_data['k_lang']))
+        self.tree.heading(
+            combo_data['v_lang'], text=code_to_lang(engine_data, combo_data['v_lang']))
         self.tree.grid(row=0, column=0)
 
         # With loop insert data to tree
@@ -157,7 +161,7 @@ class ResultsPage(ttk.Frame):
             self, 
             text='Del', 
             width=7,
-            command=self.del_word,)
+            command=self.del_word)
         button_del.grid(row=1, column=1, padx=7, sticky='n')
 
     def del_word(self):

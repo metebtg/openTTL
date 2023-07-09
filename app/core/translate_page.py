@@ -8,15 +8,10 @@ from tkinter import Menu, ttk, messagebox
 import time
 from json.decoder import JSONDecodeError
 
-from .utils import get_engine_data, code_to_lang, lang_to_code, get_index, get_path
+from . import *
 from .right_click import show_right_click_menu
 from .textbox_events import textbox_select_all, textbox_paste, textbox_copy
 
-
-BG_COLOR = "#A27B5C"
-FG_COLOR = "#DCD7C9"
-LANG_DATA_PATH = f'{os.path.expanduser("~")}/.config/opentltranslations.json'
-CONF_DATA_PATH = f'{os.path.expanduser("~")}/.config/opentldata.conf'
 
 
 engine_data = get_engine_data('google')
@@ -37,8 +32,7 @@ class TranslatePage(ttk.Frame):
             ('<Shift-Return>', self.get_translate),
             ('<Control-Return>', self.add_to_db),
             ('<Control-a>', lambda event: textbox_select_all(event)),
-            ('<Control-v>', lambda event: textbox_paste(event)),
-        )
+            ('<Control-v>', lambda event: textbox_paste(event)))
 
         textbox_data = (('left', 0), ('right', 3))
         for data in textbox_data:
@@ -48,10 +42,10 @@ class TranslatePage(ttk.Frame):
                 width=25,
                 highlightthickness=0,
                 background=FG_COLOR,
-                wrap=tk.WORD
-            )
+                wrap=tk.WORD)                
             textbox = self.__dict__[f'{data[0]}_textbox']
             textbox.grid(column=data[1], row=1, padx=5, pady=5, rowspan=5, sticky='nsew')
+
             if data[0] == 'left':
                 textbox.focus()
             # Set bindings
@@ -70,23 +64,18 @@ class TranslatePage(ttk.Frame):
             self,
             image=swap_button_img,
             command=self.swap_langs,
-            cursor=f"exchange",)
+            cursor=f"exchange")
         swap_button.grid(column=1, row=0, columnspan=2)
 
         ## Translate, Clear, Add buttons...
         normal_buttons_data = (
             ('Translate', self.get_translate, 1),
             ('Clear', self.clear_textboxes, 2),
-            ('Add', self.add_to_db, 3)
-        )
+            ('Add', self.add_to_db, 3))
         # Loop and grid them.
         for b_data in normal_buttons_data:
-            ttk.Button(
-                self,
-                text=b_data[0],
-                command=b_data[1],
-                width=8
-            ).grid(column=1, row=b_data[2], columnspan=2)
+            button = ttk.Button(self, text=b_data[0], command=b_data[1], width=8)
+            button.grid(column=1, row=b_data[2], columnspan=2)
 
         ## Copy Buttons
         # Load image for button.
@@ -96,23 +85,21 @@ class TranslatePage(ttk.Frame):
 
         copy_button_data = (('left', 1), ('right', 2))
         for _ in copy_button_data:
-            tk.Button(
-                self,
-                image=copy_button_img,
+
+            button = tk.Button(
+                self, 
+                image=copy_button_img, 
                 highlightthickness=0,
-                bg=BG_COLOR,
-                activebackground=BG_COLOR,
-                border=0,
-                font=("arial", 10, "bold"),
-                command=lambda direction=_[0]: self.copy_textbox(direction),
-            ).grid(column=_[1], row=4)
+                bg=BG_COLOR, activebackground=BG_COLOR, 
+                border=0, font=("arial", 10, "bold"),
+                command=lambda direction=_[0]: self.copy_textbox(direction))
+
+            button.grid(column=_[1], row=4)
 
         ## COMBOBOXES ##
         left_current, right_current = self.get_combo_data()
-        combobox_data = (
-            ('left', 0, left_current),
-            ('right', 3, right_current)
-        )
+
+        combobox_data = (('left', 0, left_current), ('right', 3, right_current))
         for _ in combobox_data:
             self.__dict__[f'{_[0]}_combobox'] = ttk.Combobox(self)
             textbox = self.__dict__[f'{_[0]}_combobox']
