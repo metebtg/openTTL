@@ -115,13 +115,13 @@ class TranslatePage(ttk.Frame):
         src_word = self.left_textbox.get("1.0","end").strip().title()
         dest_word = self.right_textbox.get("1.0","end").strip().title()
 
-        if len(src_word) > 0 and len(dest_word) > 0:
+        if src_word and dest_word:
             # Get combobox Language and convert them to lang code
 
             src_lang = lang_to_code(engine_data, self.left_combobox.get().strip())
             dest_lang = lang_to_code(engine_data, self.right_combobox.get().strip())
             new_data = {
-                src_lang: {dest_word: {src_word: dest_word}}
+                src_lang: {dest_lang: {src_word: dest_word}}
             }
 
             data: dict = {}
@@ -130,10 +130,10 @@ class TranslatePage(ttk.Frame):
                     data = json.load(file)
                 if src_lang not in data:
                     data[src_lang] = {}
-                if dest_word not in data[src_lang]:
-                    data[src_lang][dest_word] = {}
+                if dest_lang not in data[src_lang]:
+                    data[src_lang][dest_lang] = {}
 
-                data[src_lang][dest_word][src_word] = dest_word
+                data[src_lang][dest_lang][src_word] = dest_word
             except (KeyError, FileNotFoundError, JSONDecodeError) as error:
                 print(error)
                 data = new_data
